@@ -61,9 +61,9 @@ class Statistics{
         //textFont(f);
         textAlign(LEFT);
         text("Time:",displayWidth-120, 140);
-        textSize(72);
+        textSize(45);
         textAlign(RIGHT);
-        text(str(floor(TNOW/3600))+":"+nf(TNOW % 3600/60,2,0), displayWidth-10, 200);
+        text(str(floor(TNOW/3600))+":"+nf((TNOW % 3600)/60,2,0), displayWidth-10, 200);
         textSize(12);
         fill(255);
         stroke(255);
@@ -256,7 +256,7 @@ class Statistics{
         rect(displayWidth-200, 210,190, 20);
         stroke(255);
         fill(0);
-        text("USERS ("+round(person_arrival_rate*3600/timestamp_standard)+" persons per hour)",displayWidth-200, 225);
+        text("USERS ("+round(person_arrival_rate*3600)+" persons per hour)",displayWidth-200, 225);
         fill(255);
         line(displayWidth-200, 230,displayWidth-10, 230);        
         text("Active:",displayWidth-200, 245);
@@ -274,7 +274,7 @@ class Statistics{
         rect(displayWidth-200, 315,190, 20);
         stroke(255);
         fill(0);
-        text("CARGO ("+round(box_arrival_rate*3600/timestamp_standard)+" boxes per hour)",displayWidth-200, 330);
+        text("CARGO ("+round(box_arrival_rate*3600)+" boxes per hour)",displayWidth-200, 330);
         fill(255);
         line(displayWidth-200, 335,displayWidth-10, 335);        
         text("Active:",displayWidth-200, 350);

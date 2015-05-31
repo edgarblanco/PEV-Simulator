@@ -12,17 +12,37 @@ import de.fhpotsdam.unfolding.geo.*;
 import de.fhpotsdam.unfolding.data.*;
 import de.fhpotsdam.unfolding.mapdisplay.MapDisplayFactory;
 
-//Globals
 
-static final private int ORDER_SIZE = 600;
-static final private int PEV_FLEET_SIZE = 18;
+//Key System Parameters
+float person_arrival_rate = 200/60/60; //# orders per second
+float box_arrival_rate = 2/60/60; //# orders per second
+static final private int PEV_FLEET_SIZE = 4;
+
+//Key Animation Settings
+float timestamp_standard = 60; //number of "real life" seconds that each frame represent in the simulation
+
+//Simulation Colors
+color PEV_INTERIOR_COLOR = color(96,96,96);//grey
+color PEV_IDLE_COLOR = color(28,255,0,100); //green
+color PEV_ASSIGNED_COLOR = color(255,255,0,100); //yellow
+color PEV_BUSY_COLOR = color(204,0,0,100); //red
+color PATH_ASSIGNED_COLOR = color(255,255,0,200); //yellow
+color PATH_BUSY_COLOR = color(204,0,0,200); //red
+color PERSON_WAITING_COLOR = color(51,153,255,100); //blue
+color PERSON_ASSIGNED_COLOR = color(0,0,255,100); //blue
+color BOX_WAITING_COLOR = color(204,153,255,100); //purple
+color BOX_ASSIGNED_COLOR = color(153,51,255,100); //purple
+
+//Globals
+static final private int ORDER_SIZE = 100;
+
 static final private int X_ORIGN = 150;
 static final private int Y_ORIGN = 150;
 static final private int X_LAST = 1370;
 static final private int Y_LAST = 670;
 static final private int NUM_NODES = 16;
-
 static final private int STANDARD_DISTANCE = 10; //meters
+
 //
 ////MIT
 //static final private String place_name = "Boston - MIT";
@@ -44,12 +64,9 @@ static final private float bbox_bottom = 47.2061;
 //static final private float bbox_bottom = -23.6613;
 
 
-//public static final String JDBC_CONN_STRING_APPLET = "jdbc:sqlite:../data/tiles/blankDark-1-3.mbtiles";
-
 boolean is_paused = true;
 boolean is_under_draw = false;
 boolean fix_nodes_on = true;
-
 
 float wheel_state=1;
 
@@ -101,14 +118,9 @@ float [] vec_PEV_num_pickup_ontime = new float[PEV_FLEET_SIZE];
 boolean [] vec_PEV_has_path = new boolean[PEV_FLEET_SIZE];
 
 
-float person_arrival_rate = 0.5; //# orders per second
-float box_arrival_rate = 0.01; //# orders per second
-
 float person_timewindow = 10; //# seconds
 float box_timewindow = 10; //# seconds
 
-
-float timestamp_standard = 60; //seconds per loop 
 int PEV_speed = 3; //meters per second
 float base_time = (float)PEV_speed/(float)STANDARD_DISTANCE; //meters
 
@@ -144,10 +156,9 @@ PImage img;
 //Timer timer = new Timer("Test Timer");
 
 void setup(){
-  //size(790,600,OPENGL);
+  //size(800,600,OPENGL);
   size(displayWidth, displayHeight);
   img = loadImage("mit_logo_0.png");
-  //bg.resize(displayWidth-230, displayHeight-230);
   //frameRate(10);
   
   
@@ -163,26 +174,26 @@ void setup(){
   gNodes =  gs2.getNodeArray();
   gEdges = gs2.getAllEdgeArray();
   gs2.compact();
-        //String mbTilesString = sketchPath("maps/blank-1-3.mbtiles");
-        //map = new UnfoldingMap(this, new AcetateProvider.Foreground());
-        //map = new UnfoldingMap(this, new CartoDB.DarkMatter());
-        map = new UnfoldingMap(this);
-        //map = new UnfoldingMap(this, new StamenMapProvider.TonerBackground());
-        //map = new UnfoldingMap(this, new Google.GoogleSimplifiedProvider());
-        //map = new UnfoldingMap(this, new EsriProvider.WorldGrayCanvas());
-        //MIT
-        //Location mitCampus = new Location(42.3594f, -71.0852f);
-        //Nantes
-        Location mitCampus = new Location(47.2061f, -1.52757f);
-        //Sao Caetano
-        //Location mitCampus = new Location(-23.6613f, -46.619f);
-        MapUtils.createDefaultEventDispatcher(this, map);
-      
-        float maxPanningDistance = 300; //Restricted panning 0=no movement allowed
-        map.setZoomRange(12, 19); //Restricted zooming a=b  no zoom allowed
-        map.zoomAndPanTo(mitCampus, 15);//17
-        map.setPanningRestriction(mitCampus, maxPanningDistance);  
-        checkBoundingBox();
+  //String mbTilesString = sketchPath("maps/blank-1-3.mbtiles");
+  //map = new UnfoldingMap(this, new AcetateProvider.Foreground());
+  //map = new UnfoldingMap(this, new CartoDB.DarkMatter());
+  map = new UnfoldingMap(this);
+  //map = new UnfoldingMap(this, new StamenMapProvider.TonerBackground());
+  //map = new UnfoldingMap(this, new Google.GoogleSimplifiedProvider());
+  //map = new UnfoldingMap(this, new EsriProvider.WorldGrayCanvas());
+  //MIT
+  //Location mitCampus = new Location(42.3594f, -71.0852f);
+  //Nantes
+  Location mapCenterLocation = new Location(47.217402f, -1.553677f);
+  //Sao Caetano
+  //Location mapCenter = new Location(-23.6613f, -46.619f);
+  MapUtils.createDefaultEventDispatcher(this, map);
+
+  float maxPanningDistance = 5; //Restricted panning in kilometers 0=no movement allowed
+  map.setZoomRange(13, 18); //Restricted zooming a=b  no zoom allowed
+  map.zoomAndPanTo(mapCenterLocation, 14);
+  map.setPanningRestriction(mapCenterLocation, maxPanningDistance);  
+  //checkBoundingBox();
   
   //Initialize class 
   //PEV(initialX, initialY)
@@ -254,7 +265,6 @@ void draw(){
     for(int i=0; i < num_pev; i++){
       PEV myPEV = (PEV)PEVCollection.get(i);
       myPEV.display(i);
-      myPEV.display_interior(i);
     }
     
     //TNOW = millis()/1000;
@@ -305,11 +315,6 @@ void draw(){
 
 }
 
-void mouseWheel(MouseEvent event) {
-  //wheel_state = max(wheel_state - event.getCount()*0.01,0.00001);
-  //println(e);
-}
-
 class Nodes {
     int id;
     float street_id;
@@ -332,33 +337,3 @@ class Edges{
    float forward_cost;
    float backward_cost; 
 }
-
-
-public void checkBoundingBox() {
-  Location mapTopLeft = map.getTopLeftBorder();
-  Location mapBottomRight = map.getBottomRightBorder();
-  ScreenPosition mapTopLeftPos = map.getScreenPosition(mapTopLeft);
-  ScreenPosition boundTopLeftPos = map.getScreenPosition(boundTopLeft);
-  if (boundTopLeft.getLon() > mapTopLeft.getLon()) {
-    map.panBy(mapTopLeftPos.x - boundTopLeftPos.x, 0);
-  }
-  if (boundTopLeft.getLat() < mapTopLeft.getLat()) {
-    map.panBy(0, mapTopLeftPos.y - boundTopLeftPos.y);
-  }
-  ScreenPosition mapBottomRightPos = map.getScreenPosition(mapBottomRight);
-  ScreenPosition boundBottomRightPos = map.getScreenPosition(boundBottomRight);
-  if (boundBottomRight.getLon() < mapBottomRight.getLon()) {
-    map.panBy(mapBottomRightPos.x - boundBottomRightPos.x, 0);
-  }
-  if (boundBottomRight.getLat() > mapBottomRight.getLat()) {
-    map.panBy(0, mapBottomRightPos.y - boundBottomRightPos.y);
-  }
-}
-
-//void mousePressed() {
-//  noLoop();
-//}
-//
-//void mouseReleased() {
-//  loop();
-//}

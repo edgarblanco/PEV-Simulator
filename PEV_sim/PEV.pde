@@ -9,6 +9,7 @@ class PEV {
   int num_steps=0;
   int step_count=0;
   int k = 0;
+  int k_animate =0; //helper variable used to animate PEV during display
   boolean started_pickup = false;
   boolean started_delivery = false;
   
@@ -80,6 +81,8 @@ class PEV {
       }
 //javax.swing.JOptionPane.showMessageDialog(null, str(current_order));  
     }    
+    
+    
     void find_path(int PEV_ID,int ID, float x_pickup_pos, float y_pickup_pos, float x_delivery_pos, float y_delivery_pos){
       
       PEV_routes = new float[1000000][2];
@@ -119,6 +122,8 @@ class PEV {
 
 
     }
+    
+    
     int build_path_lerp(GraphNode[] pickup,GraphNode[] delivery){
       int pace = 2;
       int step = 0;
@@ -221,7 +226,6 @@ class PEV {
         }
         
       } else {
-        //c = color(44, 91, 167); //blue
         if (k < num_steps) {
           lat = PEV_routes[k][0];
           lon = PEV_routes[k][1];
@@ -241,7 +245,6 @@ class PEV {
     void deliver(int PEV_ID, int ID, float x_delivery_pos, float y_delivery_pos) {
       if ((abs(lat - y_delivery_pos) < diff_tolerance)&&(abs(lon - x_delivery_pos)<diff_tolerance)) {
        
-        //c = color(44, 91, 167); //blue
         if (started_delivery == false) {
           started_delivery = true;
         }   
@@ -281,42 +284,33 @@ class PEV {
     }
 
     void display(int ID) {
-      //fill(c, 100);
-      // tint(0, 153, 204, 126);
-      //stroke(c);
-      //c = color(44, 91, 167);
       ScreenPosition pos_PEV = map.getScreenPosition(new Location(lat, lon));
       // rect(pos_PEV.x, pos_PEV.y, 8, 8);
-      fill(44, 91, 167,150);
-      if ((status > 0) && (vec_order_type[vec_PEV_order_allocated[ID]] == 0))  fill(200,0,0,150);   //red
-      if ((status > 0) && (vec_order_type[vec_PEV_order_allocated[ID]] == 1))  fill(255,255,0,150); //yellow
-
-      ellipse(pos_PEV.x, pos_PEV.y, 18, 18);
+//      fill(44, 91, 167,150);
+//      if ((status > 0) && (vec_order_type[vec_PEV_order_allocated[ID]] == 0))  fill(200,0,0,150);   //red
+//      if ((status > 0) && (vec_order_type[vec_PEV_order_allocated[ID]] == 1))  fill(255,255,0,150); //yellow
+      
+      if (status == 0) fill(PEV_IDLE_COLOR);
+      else if (status == 1) { fill(PEV_ASSIGNED_COLOR); k_animate=6;}
+      else {fill(PEV_BUSY_COLOR);k_animate=6;}
+      
+      ellipse(pos_PEV.x, pos_PEV.y, 8+k_animate, 8+k_animate);
+      if (k_animate==12) k_animate=0; else k_animate++;  //here we set the maximum "scanning" circle size
+      
+      //Draw the interior of the PEV
+      fill (PEV_INTERIOR_COLOR);
+      ellipse(pos_PEV.x, pos_PEV.y, 8, 8);
+      
       //textSize(10);
       //text(ID, pos_PEV.x+8, pos_PEV.y+8);
       // text(ID, pos_PEV.x+4, pos_PEV.y+4);
       //textSize(12);
-//      text(lat, pos_PEV.x, pos_PEV.y+5);
-//      text(lon, pos_PEV.x, pos_PEV.y+15);
+      //text(lat, pos_PEV.x, pos_PEV.y+5);
+    //      text(lon, pos_PEV.x, pos_PEV.y+15);
 
-     
+  
     }
     
-    void display_interior(int ID) {
-      fill(44, 91, 167); //blue
-      if (status > 0){
-        if (vec_order_type[vec_PEV_order_allocated[ID]] == 0 && vec_order_status_pickup[vec_PEV_order_allocated[ID]] == 1) fill(200,0,0); //red
-        if (vec_order_type[vec_PEV_order_allocated[ID]] == 1 && vec_order_status_pickup[vec_PEV_order_allocated[ID]] == 1) fill(255,255,0); //yellow
-      }
-      //fill(c);
-      // tint(0, 153, 204, 126);
-      // stroke(c);
-      ScreenPosition pos_PEV = map.getScreenPosition(new Location(lat, lon));
-      // rect(pos_PEV.x, pos_PEV.y, 8, 8);
-      ellipse(pos_PEV.x, pos_PEV.y, 8, 8);
-      //fill(255);
-     
-    }
     void display_statistics(int ID) {
       fill(c);
       stroke(c);
