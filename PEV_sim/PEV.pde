@@ -179,8 +179,8 @@ class PEV {
       float lat_initial = lat;
       float lon_initial = lon;
       DrawNetwork myNetWork = new DrawNetwork(); 
-      myNetWork.drawRoute(rNodes_init_pickup, color(44, 91, 167,60), 5.0f); //blue
-      myNetWork.drawRoute(rNodes_pickup_delivery, color(238, 137, 40,120), 5.0f); //orange
+      myNetWork.drawRoute(rNodes_init_pickup, PATH_ASSIGNED_COLOR, 5.0f);
+      myNetWork.drawRoute(rNodes_pickup_delivery, PATH_BUSY_COLOR, 5.0f);
       
       if (status == 1) {
         vec_assigned_PEV[ID] = PEV_ID+1;

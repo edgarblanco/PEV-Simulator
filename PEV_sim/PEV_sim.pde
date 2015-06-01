@@ -14,27 +14,27 @@ import de.fhpotsdam.unfolding.mapdisplay.MapDisplayFactory;
 
 
 //Key System Parameters
-float person_arrival_rate = 200/60/60; //# orders per second
-float box_arrival_rate = 2/60/60; //# orders per second
-static final private int PEV_FLEET_SIZE = 4;
+float person_arrival_rate = 1000.0/60/60; //# orders per second
+float box_arrival_rate = 500.0/60/60; //# orders per second
+static final private int PEV_FLEET_SIZE = 10;
 
 //Key Animation Settings
 float timestamp_standard = 60; //number of "real life" seconds that each frame represent in the simulation
 
 //Simulation Colors
 color PEV_INTERIOR_COLOR = color(96,96,96);//grey
-color PEV_IDLE_COLOR = color(28,255,0,100); //green
-color PEV_ASSIGNED_COLOR = color(255,255,0,100); //yellow
-color PEV_BUSY_COLOR = color(204,0,0,100); //red
-color PATH_ASSIGNED_COLOR = color(255,255,0,200); //yellow
-color PATH_BUSY_COLOR = color(204,0,0,200); //red
-color PERSON_WAITING_COLOR = color(51,153,255,100); //blue
-color PERSON_ASSIGNED_COLOR = color(0,0,255,100); //blue
-color BOX_WAITING_COLOR = color(204,153,255,100); //purple
-color BOX_ASSIGNED_COLOR = color(153,51,255,100); //purple
+color PEV_BUSY_COLOR = color(28,255,0,200); //green
+color PEV_ASSIGNED_COLOR = color(255,255,0,200); //yellow
+color PEV_IDLE_COLOR = color(204,0,0,200); //red
+color PATH_ASSIGNED_COLOR = color(153,153,0,200); //yellowish
+color PATH_BUSY_COLOR = color(76,153,0,200); //greenish
+color PERSON_WAITING_COLOR = color(51,153,255,255); //blue
+color PERSON_ASSIGNED_COLOR = color(0,0,255,255); //blue
+color BOX_WAITING_COLOR = color(204,153,255,255); //purple
+color BOX_ASSIGNED_COLOR = color(153,51,255,255); //purple
 
 //Globals
-static final private int ORDER_SIZE = 100;
+static final private int ORDER_SIZE = 200;
 
 static final private int X_ORIGN = 150;
 static final private int Y_ORIGN = 150;
@@ -239,7 +239,7 @@ void draw(){
   rect(0, 0, width, height);
   //noStroke();
   DrawNetwork myNetWork = new DrawNetwork();
-  tint(255, 255);
+  //tint(255, 255);
   map.draw();
   //myNetWork.drawEdges(gEdges, wheel_state, color(0,0,0, 160), 1.0f, false);
    

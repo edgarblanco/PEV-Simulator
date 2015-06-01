@@ -1,32 +1,34 @@
 class Statistics{
   //GLOBAL VARIABLES
   //PFont f = createFont("TruetypewritterPolyglOTT", 10);
-
   //http://adilapapaya.com/papayastatistics/ - for Vizualization
-
+  int HEADING1_FONT_SIZE =25;
+  int HEADING2_FONT_SIZE =20;
+  int HEADING3_FONT_SIZE =12;
+  int STAT_FONT_SIZE =20;
+  color HEADING_TEXT_COLOR = color(200);
+  color STAT_TEXT_COLOR = color(190);
+  color LINE_COLOR = color(255);
+  
+  
+  int PANEL_SPACING = 15;
+  int PANEL_MARGIN = 5;
+  int DASHBOARD_HEIGHT = 10*HEADING2_FONT_SIZE+7*PANEL_SPACING + 6*STAT_FONT_SIZE + HEADING1_FONT_SIZE;
+  int DASHBOARD_WIDTH = 200;
+  int DASHBOARD_TOPLEFT_X = displayWidth-DASHBOARD_WIDTH - PANEL_SPACING;
+  int DASHBOARD_TOPLEFT_Y = 50;
+  
   
   //CONSTRUCTOR (run just once)
    Statistics() {
    
    } 
   void static_dashboard(){
-    //PFont f1 = createFont("TruetypewritterPolyglOTT", 40);
-    //textFont(f1);
-//    noStroke();
-//    fill(0);
-//    rect(0,0,displayWidth,40);
-//    fill(255);
-//    textSize(26);
-//    text("PEV - Simulation", displayWidth/2 - 200, 30);
-//    text("(Location:"+place_name+")", displayWidth/2+100, 30);
-//    textSize(12);
-//    fill(0);
-    //f1 = createFont("TruetypewritterPolyglOTT", 20);
     
     //order_table();
     //PEV_table();
-    fill(0,0,0,155);
-    roundRect(displayWidth-200,100,200,displayHeight-200);
+    fill(0,0,50,200);
+    roundRect(DASHBOARD_TOPLEFT_X,DASHBOARD_TOPLEFT_Y,DASHBOARD_WIDTH, DASHBOARD_HEIGHT);
     fill(255);
     //Gantt();
     big_display();
@@ -53,24 +55,19 @@ class Statistics{
   //FUNCTIONS
   void running_time(){
         noStroke();
-        fill(255);
-        //rect(displayWidth-100,100,80,20);
-        fill(0);
-        fill(255);
         //PFont a = createFont("TruetypewritterPolyglOTT", 30);
         //textFont(f);
         textAlign(LEFT);
-        text("Time:",displayWidth-120, 140);
-        textSize(45);
+		textSize(HEADING3_FONT_SIZE);
+		fill(HEADING_TEXT_COLOR);
+		int time_X = DASHBOARD_TOPLEFT_X + PANEL_MARGIN ;
+		int time_Y = DASHBOARD_TOPLEFT_Y+PANEL_MARGIN+ 2*HEADING1_FONT_SIZE;
+		text("Time (HH:MM):",time_X,time_Y );
+		
         textAlign(RIGHT);
-        text(str(floor(TNOW/3600))+":"+nf((TNOW % 3600)/60,2,0), displayWidth-10, 200);
-        textSize(12);
-        fill(255);
-        stroke(255);
-        line(displayWidth-200, 210,displayWidth-10, 210);
-        //a = createFont("TruetypewritterPolyglOTT", 10);
-        stroke(0);
-        //text(""+str(displayHeight-230), 80, 395);
+		textSize(HEADING2_FONT_SIZE);
+		fill(STAT_TEXT_COLOR);
+        text(str(floor(TNOW/3600))+":"+nf((TNOW % 3600)/60,2,0), time_X +150, time_Y);
   }
   
   void order_table(){
@@ -207,6 +204,15 @@ class Statistics{
    }
    
   void big_display(){
+		
+	  	int PANEL1_Y = DASHBOARD_TOPLEFT_Y + PANEL_SPACING*5;
+	  	int PANEL2_Y = DASHBOARD_TOPLEFT_Y + PANEL_SPACING*11;
+	    int PANEL3_Y = DASHBOARD_TOPLEFT_Y + PANEL_SPACING*17;
+	 	int PANEL4_Y = DASHBOARD_TOPLEFT_Y + PANEL_SPACING*23;
+		int PANEL5_Y = DASHBOARD_TOPLEFT_Y + PANEL_SPACING*28;
+		
+		int COL_OFFSET = (int) DASHBOARD_WIDTH/3;
+		
         float average_wait_time = 0.0f;
         float average_carry_rate = 0.0f;
         float average_alloc_rate = 0.0f;
@@ -229,82 +235,121 @@ class Statistics{
         
         for (int k=0;k<ORDER_SIZE;k++){
           
-          if ((vec_order_status_allocation[k] == 0)&&(vec_order_type[k] == 0)&&(vec_release_time[k] < TNOW)) num_active_person++;
-          if ((vec_order_status_canceled[k] == 1)&&(vec_order_type[k] == 0)&&(vec_release_time[k] < TNOW)) num_lost_person++;
-          if ((vec_order_status_delivery[k] == 1)&&(vec_order_type[k] == 0)) num_filled_person++;
-          if ((vec_order_status_allocation[k] == 0)&&(vec_order_type[k] == 1)&&(vec_release_time[k] < TNOW)) num_active_box++;
-          if ((vec_order_status_canceled[k] == 1)&&(vec_order_type[k] == 1)&&(vec_release_time[k] < TNOW)) num_lost_box++;
-          if ((vec_order_status_delivery[k] == 1)&&(vec_order_type[k] == 1)) num_filled_box++;
+          if ((vec_order_status_delivery[k] == 0)&&(vec_order_type[k] == 0)&&(vec_release_time[k] <= TNOW)) num_active_person++;
+          if ((vec_order_status_canceled[k] == 1)&&(vec_order_type[k] == 0)&&(vec_release_time[k] <= TNOW)) num_lost_person++;
+          if ((vec_order_status_delivery[k] == 1)&&(vec_order_status_canceled[k] == 0)&&(vec_order_type[k] == 0)) num_filled_person++;
+          if ((vec_order_status_delivery[k] == 0)&&(vec_order_type[k] == 1)&&(vec_release_time[k] <= TNOW)) num_active_box++;
+          if ((vec_order_status_canceled[k] == 1)&&(vec_order_type[k] == 1)&&(vec_release_time[k] <= TNOW)) num_lost_box++;
+          if ((vec_order_status_delivery[k] == 1)&&(vec_order_status_canceled[k] == 0)&&(vec_order_type[k] == 1)) num_filled_box++;
 
 
         }        
         
         
-        average_wait_time = (average_wait_time/(float)PEV_FLEET_SIZE);
+        average_wait_time = (average_wait_time/(float)(PEV_FLEET_SIZE*timestamp_standard));
         average_carry_rate = (average_carry_rate/(float)TNOW)/(float)PEV_FLEET_SIZE;
         average_alloc_rate = (average_alloc_rate/(float)TNOW)/(float)PEV_FLEET_SIZE;
         
-        fill(255);
-        text("PEV - Simulation", displayWidth-55, 95);
-        text("(Location:"+place_name+")", displayWidth-55, 115);
-        stroke(255);
-        fill(255);
-        textAlign(LEFT);
-        //ORDERS
-         fill(200,0,0,150); //red
+		//TITLE
+        textSize(HEADING1_FONT_SIZE);
+		fill(HEADING_TEXT_COLOR);
+		textAlign(LEFT);
+        text("PEV Dynamics", DASHBOARD_TOPLEFT_X + PANEL_MARGIN, DASHBOARD_TOPLEFT_Y + 4*PANEL_MARGIN);
+		
+		//Subtitle
+		textSize(HEADING3_FONT_SIZE);
+		fill(HEADING_TEXT_COLOR);
+		textAlign(LEFT);
+        text("(Location:"+place_name+")", DASHBOARD_TOPLEFT_X + PANEL_MARGIN, DASHBOARD_TOPLEFT_Y + 4*PANEL_MARGIN + HEADING3_FONT_SIZE+1 );
+        //stroke(255);
+		
+        //ORDERS PANEL
+		
+		
+		
+		//Persons 
+        //fill(LINE_COLOR);
+        //stroke(LINE_COLOR);
+        //line(DASHBOARD_TOPLEFT_X, PANEL1_Y, DASHBOARD_TOPLEFT_X+DASHBOARD_WIDTH,PANEL1_Y);
+        //a = createFont("TruetypewritterPolyglOTT", 10);
+        stroke(0);
+        //text(""+str(displayHeight-230), 80, 395);
+        fill(PERSON_WAITING_COLOR);
         noStroke();
-        rect(displayWidth-200, 210,190, 20);
-        stroke(255);
-        fill(0);
-        text("USERS ("+round(person_arrival_rate*3600)+" persons per hour)",displayWidth-200, 225);
-        fill(255);
-        line(displayWidth-200, 230,displayWidth-10, 230);        
-        text("Active:",displayWidth-200, 245);
-        text("Filled:",displayWidth-140, 245);
-        text("Lost:",displayWidth-80, 245);        
-        textSize(30);
-        text(num_active_person,displayWidth-200, 280);
-        text(num_filled_person,displayWidth-140, 280);
-        text(num_lost_person,displayWidth-80, 280);
-        textSize(12);
+        rect(DASHBOARD_TOPLEFT_X-1, PANEL1_Y+1,DASHBOARD_WIDTH+1, HEADING3_FONT_SIZE+6);
+        stroke(HEADING_TEXT_COLOR);
+        fill(HEADING_TEXT_COLOR);
+		textSize(HEADING3_FONT_SIZE);
+        text("USERS ("+str(round(person_arrival_rate*3600))+" persons per hour)",DASHBOARD_TOPLEFT_X, PANEL1_Y+HEADING3_FONT_SIZE+3);
+		
+		textSize(HEADING3_FONT_SIZE);      
+        text("Active:",DASHBOARD_TOPLEFT_X, PANEL1_Y+2*HEADING3_FONT_SIZE+6);
+        text("Filled:",DASHBOARD_TOPLEFT_X+COL_OFFSET, PANEL1_Y+2*HEADING3_FONT_SIZE+6);
+        text("Lost:",DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL1_Y+2*HEADING3_FONT_SIZE+6);   
+		     
+        textSize(STAT_FONT_SIZE);
+		fill(STAT_TEXT_COLOR);
+		stroke(STAT_TEXT_COLOR);
+        text(num_active_person,DASHBOARD_TOPLEFT_X, PANEL1_Y+4*HEADING3_FONT_SIZE+6);
+        text(num_filled_person,DASHBOARD_TOPLEFT_X+COL_OFFSET, PANEL1_Y+4*HEADING3_FONT_SIZE+6);
+        text(num_lost_person,DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL1_Y+4*HEADING3_FONT_SIZE+6);
+        textSize(STAT_FONT_SIZE);
 
-        line(displayWidth-200, 314,displayWidth-10, 314);
-        fill(255,255,0,150);
+		//Boxes
+        fill(BOX_WAITING_COLOR);
         noStroke();
-        rect(displayWidth-200, 315,190, 20);
-        stroke(255);
-        fill(0);
-        text("CARGO ("+round(box_arrival_rate*3600)+" boxes per hour)",displayWidth-200, 330);
-        fill(255);
-        line(displayWidth-200, 335,displayWidth-10, 335);        
-        text("Active:",displayWidth-200, 350);
-        text("Filled:",displayWidth-140, 350);
-        text("Lost:",displayWidth-80, 350);         
-        textSize(30);
-        text(num_active_box,displayWidth-200, 385);
-        text(num_filled_box,displayWidth-140, 385);        
-        text(num_lost_box,displayWidth-80, 385);
-        textSize(12);
+        rect(DASHBOARD_TOPLEFT_X-1, PANEL2_Y+1,DASHBOARD_WIDTH+1, HEADING3_FONT_SIZE+6);
+        stroke(HEADING_TEXT_COLOR);
+        fill(HEADING_TEXT_COLOR);
+		textSize(HEADING3_FONT_SIZE);
+        text("CARGO ("+round(box_arrival_rate*3600)+" boxes per hour)",DASHBOARD_TOPLEFT_X, PANEL2_Y+HEADING3_FONT_SIZE+3);
+        
+		textSize(HEADING3_FONT_SIZE);               
+        text("Active:",DASHBOARD_TOPLEFT_X, PANEL2_Y+2*HEADING3_FONT_SIZE+6);
+        text("Filled:",DASHBOARD_TOPLEFT_X+COL_OFFSET, PANEL2_Y+2*HEADING3_FONT_SIZE+6);
+        text("Lost:",DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL2_Y+2*HEADING3_FONT_SIZE+6);  
+		     
+        textSize(STAT_FONT_SIZE);
+		fill(STAT_TEXT_COLOR);
+		stroke(STAT_TEXT_COLOR);
+        text(num_active_box,DASHBOARD_TOPLEFT_X, PANEL2_Y+4*HEADING3_FONT_SIZE+6);
+        text(num_filled_box,DASHBOARD_TOPLEFT_X+COL_OFFSET, PANEL2_Y+4*HEADING3_FONT_SIZE+6);    
+        text(num_lost_box,DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL2_Y+4*HEADING3_FONT_SIZE+6); 
 
-        //PEV
-        line(displayWidth-200, 500,displayWidth-10, 500);
-        text("Carry (%):",displayWidth-200, 520);
-        text("Allocation (%):",displayWidth-100, 520);
-        text("Waiting time:",displayWidth-200, 620);
-        text("Active Bikes:",displayWidth-100, 620);
-        textSize(30);
-        //textAlign(RIGHT);
-        text(nf((average_carry_rate)*100,1,1)+"%", displayWidth-200, 580);
-        text(nf((average_alloc_rate)*100,1,1)+"%", displayWidth-100, 580);
-        //text(nf(average_wait_time/60,0,0), displayWidth-200, 680);
-        text(str(count_allocated_PEV) +"/"+str(PEV_FLEET_SIZE), displayWidth-100, 680);
-        textSize(12);
-        fill(255);
-        //image(images[frame], xpos, ypos); Include PEV picture
+        //PEV (two columns)
+        fill(100);
+        noStroke();
+        rect(DASHBOARD_TOPLEFT_X-1, PANEL3_Y+1,DASHBOARD_WIDTH+1, HEADING3_FONT_SIZE+6);
+        stroke(HEADING_TEXT_COLOR);
+        fill(HEADING_TEXT_COLOR);
+		textSize(HEADING3_FONT_SIZE);
+        text("PEV Stats",DASHBOARD_TOPLEFT_X, PANEL3_Y+HEADING3_FONT_SIZE+3);
+        textSize(HEADING3_FONT_SIZE);
+		
+        noStroke();
+        fill(PEV_BUSY_COLOR); 
+        rect(DASHBOARD_TOPLEFT_X, PANEL3_Y+2*HEADING3_FONT_SIZE,COL_OFFSET, 10);
+        fill(HEADING_TEXT_COLOR);
+        text("Loaded (%):",DASHBOARD_TOPLEFT_X, PANEL3_Y+2*HEADING3_FONT_SIZE+29);
+		
+        fill(PEV_ASSIGNED_COLOR);
+        rect(DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL3_Y+2*HEADING3_FONT_SIZE,COL_OFFSET, 10);   
+        fill(HEADING_TEXT_COLOR); 
+        text("Reserved (%):",DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL3_Y+2*HEADING3_FONT_SIZE+29);
+		
+        text("Waiting time",DASHBOARD_TOPLEFT_X, PANEL4_Y+ HEADING3_FONT_SIZE);
+        text("Active Bikes",DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL4_Y+ HEADING3_FONT_SIZE);
+		
+        textSize(STAT_FONT_SIZE);
+        text(int((average_carry_rate)*100)+"%", DASHBOARD_TOPLEFT_X, PANEL3_Y+ 6*HEADING3_FONT_SIZE);
+        text(int((average_alloc_rate)*100)+"%", DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL3_Y+ 6*HEADING3_FONT_SIZE);
+        text(str(int(average_wait_time/60))+"'", DASHBOARD_TOPLEFT_X, PANEL4_Y+ 3*HEADING3_FONT_SIZE);
+        text(str(count_allocated_PEV) +"/"+str(PEV_FLEET_SIZE), DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL4_Y+ 3*HEADING3_FONT_SIZE);
         
+        //MIT Logo
+        float scale_pic = 0.15;
+        image(img,DASHBOARD_TOPLEFT_X+2*COL_OFFSET, PANEL5_Y,321*scale_pic,166*scale_pic);
         
-        //Logo
-        image(img,displayWidth-190, displayHeight-180,180,60);
     
   }
 }
